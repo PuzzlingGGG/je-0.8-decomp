@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Julian's Editor Rebuild</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="full-screen" content="yes" />
+    <meta name="screen-orientation" content="portrait" />
+    <meta name="x5-fullscreen" content="true" />
+    <meta name="360-fullscreen" content="true" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style-desktop.css">
+</head>
+<body>
+
+    <div id="GameDiv" style="width: 750px; height: 1334px;">
+        <canvas id="GameCanvas" width="750" height="1334" tabindex="0"></canvas>
+        <div id="splash">
+            <div class="progress-bar stripes">
+                <span style="width: 0%"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="src/settings.js" charset="utf-8"></script>
+    <script src="src/main.js" charset="utf-8"></script>
+
+    <script>
+(function () {
+  function isMobile() {
+    return /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  function createCanvas() {
+    const splash = document.getElementById('splash');
+    const canvas = document.getElementById('GameCanvas');
+
+    if (isMobile()) {
+      canvas.oncontextmenu = () => false;
+      splash.style.display = 'block';
+      return;
+    }
+
+    const div = document.getElementById("GameDiv");
+    const scalex = 750 / window.innerWidth;
+    const scaley = 1334 / window.innerHeight;
+    const scale = Math.max(scalex, scaley);
+    div.style.width = `${750 / scale}px`;
+    div.style.height = `${1334 / scale}px`;
+  }
+
+  function resizeCanvas() {
+    if (isMobile()) return;
+    const div = document.getElementById("GameDiv");
+    const scalex = 750 / window.innerWidth;
+    const scaley = 1334 / window.innerHeight;
+    const scale = Math.max(scalex, scaley);
+    div.style.width = `${750 / scale}px`;
+    div.style.height = `${1334 / scale}px`;
+  }
+
+  createCanvas();
+  window.onresize = resizeCanvas;
+
+  function loadScript(moduleName, cb) {
+    const domScript = document.createElement('script');
+    domScript.async = true;
+    domScript.src = moduleName;
+    domScript.onload = () => {
+      document.body.removeChild(domScript);
+      cb && cb();
+    };
+    document.body.appendChild(domScript);
+  }
+
+  loadScript("src/cocos2d-jsb.js", () => {
+    if (typeof CC_PHYSICS_BUILTIN !== 'undefined' || typeof CC_PHYSICS_CANNON !== 'undefined') {
+      loadScript("src/physics.js", window.boot);
+    } else {
+      window.boot();
+    }
+  });
+})();
+    </script>
+
+</body>
+</html>
